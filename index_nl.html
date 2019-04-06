@@ -1,603 +1,716 @@
 <!DOCTYPE html>
-<!-- saved from url=(0048)https://www.shivasoftsolutions.com/index_nl.html -->
-<html lang="en" class="gr__shivasoftsolutions_com"><script id="typef_orm_share" src="./index_files/embed.js"></script><script>(function main() {
-    // Create enabled event
-    function fireEnabledEvent() {
-        // If gli exists, then we are already present and shouldn't do anything
-        if (!window.gli) {
-            setTimeout(function () {
-                var enabledEvent = document.createEvent("Event");
-                enabledEvent.initEvent("WebGLEnabledEvent", true, true);
-                document.dispatchEvent(enabledEvent);
-            }, 0);
-        } else {
-            //console.log("WebGL Inspector already embedded on the page - disabling extension");
+<html lang="en" class="gr__shivasoftsolutions_com">
+<script id="typef_orm_share" src="./index_files/embed.js"></script>
+<script>(function main() {
+        // Create enabled event
+        function fireEnabledEvent() {
+            // If gli exists, then we are already present and shouldn't do anything
+            if (!window.gli) {
+                setTimeout(function () {
+                    var enabledEvent = document.createEvent("Event");
+                    enabledEvent.initEvent("WebGLEnabledEvent", true, true);
+                    document.dispatchEvent(enabledEvent);
+                }, 0);
+            } else {
+                //console.log("WebGL Inspector already embedded on the page - disabling extension");
+            }
+        };
+
+        // Grab the path root from the extension
+        document.addEventListener("WebGLInspectorReadyEvent", function (e) {
+            var pathElement = document.getElementById("__webglpathroot");
+            if (window["gliloader"]) {
+                gliloader.pathRoot = pathElement.innerText;
+            } else {
+                // TODO: more?
+                window.gliCssUrl = pathElement.innerText + "gli.all.css";
+            }
+        }, false);
+
+        // Rewrite getContext to snoop for webgl
+        var originalGetContext = HTMLCanvasElement.prototype.getContext;
+        if (!HTMLCanvasElement.prototype.getContextRaw) {
+            HTMLCanvasElement.prototype.getContextRaw = originalGetContext;
         }
-    };
+        HTMLCanvasElement.prototype.getContext = function () {
+            var ignoreCanvas = this.internalInspectorSurface;
+            if (ignoreCanvas) {
+                return originalGetContext.apply(this, arguments);
+            }
 
-    // Grab the path root from the extension
-    document.addEventListener("WebGLInspectorReadyEvent", function (e) {
-        var pathElement = document.getElementById("__webglpathroot");
-        if (window["gliloader"]) {
-            gliloader.pathRoot = pathElement.innerText;
-        } else {
-            // TODO: more?
-            window.gliCssUrl = pathElement.innerText + "gli.all.css";
-        }
-    }, false);
+            var result = originalGetContext.apply(this, arguments);
+            if (result == null) {
+                return null;
+            }
 
-    // Rewrite getContext to snoop for webgl
-    var originalGetContext = HTMLCanvasElement.prototype.getContext;
-    if (!HTMLCanvasElement.prototype.getContextRaw) {
-        HTMLCanvasElement.prototype.getContextRaw = originalGetContext;
-    }
-    HTMLCanvasElement.prototype.getContext = function () {
-        var ignoreCanvas = this.internalInspectorSurface;
-        if (ignoreCanvas) {
-            return originalGetContext.apply(this, arguments);
-        }
+            var contextNames = ["moz-webgl", "webkit-3d", "experimental-webgl", "webgl", "3d"];
+            var requestingWebGL = contextNames.indexOf(arguments[0]) != -1;
+            if (requestingWebGL) {
+                // Page is requesting a WebGL context!
+                fireEnabledEvent(this);
 
-        var result = originalGetContext.apply(this, arguments);
-        if (result == null) {
-            return null;
-        }
-
-        var contextNames = ["moz-webgl", "webkit-3d", "experimental-webgl", "webgl", "3d"];
-        var requestingWebGL = contextNames.indexOf(arguments[0]) != -1;
-        if (requestingWebGL) {
-            // Page is requesting a WebGL context!
-            fireEnabledEvent(this);
-
-            // If we are injected, inspect this context
-            if (window.gli) {
-                if (gli.host.inspectContext) {
-                    // TODO: pull options from extension
-                    result = gli.host.inspectContext(this, result);
-                    // NOTE: execute in a timeout so that if the dom is not yet
-                    // loaded this won't error out.
-                    window.setTimeout(function() {
-                        var hostUI = new gli.host.HostUI(result);
-                        result.hostUI = hostUI; // just so we can access it later for debugging
-                    }, 0);
+                // If we are injected, inspect this context
+                if (window.gli) {
+                    if (gli.host.inspectContext) {
+                        // TODO: pull options from extension
+                        result = gli.host.inspectContext(this, result);
+                        // NOTE: execute in a timeout so that if the dom is not yet
+                        // loaded this won't error out.
+                        window.setTimeout(function () {
+                            var hostUI = new gli.host.HostUI(result);
+                            result.hostUI = hostUI; // just so we can access it later for debugging
+                        }, 0);
+                    }
                 }
             }
-        }
 
-        return result;
-    };
-})();</script><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<title>Shiva Soft Solutions</title>
+            return result;
+        };
+    })();</script>
 
-	<!-- Meta tag Keywords -->
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	
-	<script type="application/x-javascript">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Shiva Soft Solutions</title>
+
+    <!-- Meta tag Keywords -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script type="application/x-javascript">
 		addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false);
 function hideURLbar(){ window.scrollTo(0,1); }
 	</script>
-	<!-- Meta tag Keywords -->
+    <!-- Meta tag Keywords -->
 
-	<!-- css files -->
-	<link href="./index_files/style.css" rel="stylesheet" type="text/css" media="all">
-	<link href="./index_files/bootstrap.min.css" rel="stylesheet" type="text/css" media="all">
-	<link href="./index_files/font-awesome.min.css" rel="stylesheet" type="text/css" media="all">
-	<link rel="stylesheet" href="./index_files/chocolat.css" type="text/css" media="screen">
-	<!-- //css files -->
+    <!-- css files -->
+    <link href="./index_files/style.css" rel="stylesheet" type="text/css" media="all">
+    <link href="./index_files/bootstrap.min.css" rel="stylesheet" type="text/css" media="all">
+    <link href="./index_files/font-awesome.min.css" rel="stylesheet" type="text/css" media="all">
+    <link rel="stylesheet" href="./index_files/chocolat.css" type="text/css" media="screen">
+    <!-- //css files -->
 
-	<!-- online-fonts -->
-	<link href="./index_files/css" rel="stylesheet">
-	<!-- //online-fonts -->
+    <!-- online-fonts -->
+    <link href="./index_files/css" rel="stylesheet">
+    <!-- //online-fonts -->
 
-	<!-- js -->
-	<script type="text/javascript" src="./index_files/jquery-2.1.4.min.js"></script>
-	<script type="text/javascript" src="./index_files/bootstrap-3.1.1.min.js"></script>
-	<!-- //js -->
-	<style>
-		@media (min-width: 768px) {
-			.navbar .navbar-nav {
-				display: inline-block;
-				float: none;
-				vertical-align: top;
-			}
+    <!-- js -->
+    <script type="text/javascript" src="./index_files/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="./index_files/bootstrap-3.1.1.min.js"></script>
+    <!-- //js -->
+    <style>
+        @media (min-width: 768px) {
+            .navbar .navbar-nav {
+                display: inline-block;
+                float: none;
+                vertical-align: top;
+            }
 
-			.navbar .navbar-collapse {
-				text-align: center;
-			}
-		}
+            .navbar .navbar-collapse {
+                text-align: center;
+            }
+        }
 
-		address {
-			color: #fff;
-			font-size: 1.5em;
-		}
-	</style>
-<style type="text/css" data-emotion=""></style><style type="text/css"></style><style type="text/css" data-emotion="">.css-1l99lqu{border-radius:0;display:block;height:2px;width:25px;position:absolute;right:6px;top:6px;}</style><style type="text/css" data-emotion="">.__typeform-embed-mobile-modal-open{overflow:hidden !important;position:fixed !important;top:0 !important;left:0 !important;right:0 !important;bottom:0 !important;}</style><style type="text/css" data-emotion="">.css-bhl88l{-webkit-transition:visibility 0s 0.25s,opacity 0.25s linear;transition:visibility 0s 0.25s,opacity 0.25s linear;visibility:hidden;opacity:0;}</style></head>
+        address {
+            color: #fff;
+            font-size: 1.5em;
+        }
+    </style>
+    <style type="text/css" data-emotion=""></style>
+    <style type="text/css"></style>
+    <style type="text/css" data-emotion="">
+        .css-1l99lqu {
+            border-radius: 0;
+            display: block;
+            height: 2px;
+            width: 25px;
+            position: absolute;
+            right: 6px;
+            top: 6px;
+        }
+    </style>
+    <style type="text/css" data-emotion="">
+        .__typeform-embed-mobile-modal-open {
+            overflow: hidden !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+        }
+    </style>
+    <style type="text/css" data-emotion="">
+        .css-bhl88l {
+            -webkit-transition: visibility 0s 0.25s, opacity 0.25s linear;
+            transition: visibility 0s 0.25s, opacity 0.25s linear;
+            visibility: hidden;
+            opacity: 0;
+        }
+    </style>
+</head>
 
 <body data-gr-c-s-loaded="true" cz-shortcut-listen="true">
-	<div class="lang_sel">
-		<a href="index.html">ENGLISH</a> | <a href="/index_nl.html">DUTCH</a>
-	</div>
-	<div class="header nl">
-		<div class="logo">
-			<h1><img src="./index_files/logos3.png"></h1>
-		</div>
-		<!-- Slider -->
-		<div class="slider">
-			<div class="callbacks_container">
-				<ul class="rslides callbacks callbacks1" id="slider">
-					
-					<li id="callbacks1_s0" class="callbacks1_on" style="display: block; float: left; position: relative; opacity: 1; z-index: 2; transition: opacity 1000ms ease-in-out;">
+    <div class="lang_sel">
+        <a href="index.html">ENGLISH</a> | <a href="/index_nl.html">DUTCH</a>
+    </div>
+    <div class="header nl">
+        <div class="logo">
+            <h1><img src="./index_files/logos3.png"></h1>
+        </div>
+        <!-- Slider -->
+        <div class="slider">
+            <div class="callbacks_container">
+                <ul class="rslides callbacks callbacks1" id="slider">
 
-						<div class="slider-info">
-							<p>Het maken van technische systemen voor u</p>
-						</div>
-					</li>
-					
-				
+                    <li id="callbacks1_s0" class="callbacks1_on"
+                        style="display: block; float: left; position: relative; opacity: 1; z-index: 2; transition: opacity 1000ms ease-in-out;">
 
-				</ul>
-			</div>
-			<div class="clearfix"></div>
-		</div>
-		<!-- //Slider -->
-		<!-- navigation -->
-		<div class="top-nav">
-			<nav class="navbar navbar-default">
-				<div class="navbar-header">
-					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-							<span class="sr-only">Toggle navigation</span>
-							<span class="icon-bar"></span>
-							<span class="icon-bar"></span>
-							<span class="icon-bar"></span>
-						</button>
-
-				</div>
-				<!-- navbar-header -->
-				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-					<ul class="nav navbar-nav">
-						<li><a href="https://www.shivasoftsolutions.com/index_nl.html#about" class="hvr-underline-from-center scroll">Over ons</a></li>
-						<li><a href="https://www.shivasoftsolutions.com/index_nl.html#blogs" class="hvr-underline-from-center scroll">IT Services</a></li>
-						<li><a href="https://www.shivasoftsolutions.com/index_nl.html#tsta" class="hvr-underline-from-center scroll">Test Automation</a></li>
-						<li><a href="https://www.shivasoftsolutions.com/index_nl.html#ita" class="hvr-underline-from-center scroll">IT Academy</a></li>
-						<li><a href="https://www.shivasoftsolutions.com/index_nl.html#jobs" class="hvr-underline-from-center scroll">Careers</a></li>
-						<li><a href="https://www.shivasoftsolutions.com/index_nl.html#contact" class="hvr-underline-from-center scroll">Contact Us</a></li>
-
-
-					</ul>
-				</div>
-				<div class="clearfix"> </div>
-			</nav>
-		</div>
-		<!-- //navigation -->
-	</div>
-
-	<!--main-content-->
-	<!--about-->
-	<div class="w3-about" id="about">
-		<div class="container">
-			<div class="about-head">
-				<h3>about us</h3>
-				<p>Shiva Soft Solutions is een Europe Based Technology en een adviesbureau dat gevestigd is in het Verenigd Koninkrijk en Nederland.</p>
-			</div>
-			<div class="about-info">
-				<div class="row">
-					<img src="./index_files/it_consult.jpg" style="padding-top:100px" class="col-xs-12 col-md-6" alt="about-image">
-					<div class="col-xs-12 col-md-6">
-						<h3>S3 OVERLEG PLEGEN</h3>
-						<p>Bij Shiva Soft Solutions heet ook S3, we geloven dat, als het mogelijk is, het zal worden gedaan. Als het niet mogelijk is, S3
-Zal er naar manieren zoeken om het toch te doen. Onmoontlike vragen omzetten in mogelijke oplossingen, dat is wat ons anders maakt.
-Onze mensen ademen, droom en leven omgaan met kamers. We hebben uitgebreide ervaring in implementaties en applicaties van IT-systemen
-Ondersteuning voor verschillende toepassingen op de financiële markten. S3 heeft een bewezen track record: we hebben gewerkt voor financiële instellingen
-In Amsterdam, Londen en New York. Wij zullen u helpen uw kosten-efficiëntie te verbeteren, uw applicatie-architectuur te vereenvoudigen,
-Optimaliseer de tijd op de markt, verhoog rechtdoor door de verwerking en voldoet aan de financiële voorschriften. In het kort:
-Je doet de deal, we doen het project!
-						</p>
-					</div>
-				</div>
-
-				<div class="row">
-					<div class="col-xs-12 col-md-6">
-						<h3>S3 TECHNOLOGIES</h3>
-						<p>De financiële wereld kan vrij complex zijn, vooral als IT-software in de foto komt. S3 is gespecialiseerd in het begrijpen,
-Verduidelijken, ontwerpen en implementeren van de meest ingewikkelde financiële IT-projecten (in onderdelen of als een volledig op maat ontworpen
-pakket). We kunnen een proces uit elkaar nemen, het beter laten werken of een nieuwe maken vanaf het begin, altijd in de gaten houden
-Op de grotere foto. S3 maakt gebruik van al zijn inzicht, ervaring, talent en netwerk om uw systeem te laten draaien zonder
-Een hitch. Ons doel is om onze klanten succesvol te maken in hun systeem implementaties en / of applicatie support.We hebben ruime ervaring op dit gebied.</p>
-					</div>
-					<img src="./index_files/technologies.png" style="padding-top:100px" class="col-xs-12 col-md-6" alt="about-image">
-				</div>
-			</div>
-			<div class="clearfix"></div>
-		</div>
-	</div>
-	<!--//about-->
+                        <div class="slider-info">
+                            <p>Het maken van technische systemen voor u</p>
+                        </div>
+                    </li>
 
 
 
-	<!--blogs-->
-	<div class="agile-blogs" id="blogs">
-		<div class="container">
-			<div class="g1 agile-blog1">
-				<h2>IT Services</h2>
-				<a href="https://www.shivasoftsolutions.com/index_nl.html#" data-toggle="modal" data-target="#myModal1"><img src="./index_files/finance.jpg" alt="blog1"></a>
-				<div class="text-w3">
-					<h4><a href="https://www.shivasoftsolutions.com/index_nl.html#" data-toggle="modal" data-target="#myModal1">
-Banken en Financiële diensten - Consulting</a></h4>
+                </ul>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <!-- //Slider -->
+        <!-- navigation -->
+        <div class="top-nav">
+            <nav class="navbar navbar-default">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse"
+                        data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
 
-					<div>
-						<ul>
-							<li>Asset and wealth Management diensten</li>
-							<li>Investment Banking en Makelaarsdiensten</li>
-							<li>Securities Services</li>
-							<li>Capital Markets Consulting</li>
-							<li>Derivatives Market Consulting</li>
-							<li>Cross Currency, Money Markets FX-MM, collateralised borrowing</li>
-							<li>Exchange Traded Futures and Options Markets</li>
-							<li>Collateral process, Initial Margin, Variation Margin and Margin movements </li>
-							<li>Security Lending</li>
-						</ul>
-					</div>
-
-				</div>
-				<div class="clearfix"></div>
-			</div>
-			<div class="g2 agile-blog2">
-				<a href="https://www.shivasoftsolutions.com/index_nl.html#" data-toggle="modal" data-target="#myModal2"><img style="padding-top: 50px;" src="./index_files/testing.jpg" alt="blog1"></a>
-				<div class="text-w3l">
-					<h4><a href="https://www.shivasoftsolutions.com/index_nl.html#" data-toggle="modal" data-target="#myModal2">QA Service</a></h4>
-					<div>
-						<ul>
-							<li>
-								<h3>Automatiseringstesten</h3>
-								<div>Automatische ingenieurs op S3 hebben expertise in diverse tools, waaronder, Selen (C / C ++, C #, .NET, Java, Visual Basic,
-Python en PHP.), BDD / TDD-driven, QTP-gebaseerde automatiseringsraamwerkontwikkeling</div>
-							</li>
-							<li>
-								<h3>Mobiele applicatie testen</h3>
-								<div>Our Automation engineers can provide scalable frameworks for your mobile apps; the framework grows as your app does!</div>
-							</li>
-							<li>
-								<h3>Webtoepassingstesten</h3>
-								<div>Onze automatiseringstechnici zullen volledige testen uitvoeren met gedetailleerde QA-rapportage</div>
-							</li>
-						</ul>
-					</div>
-				</div>
-				<div class="clearfix"></div>
-			</div>
-			<div class="g3 agile-blog1">
-				<a href="https://www.shivasoftsolutions.com/index_nl.html#" data-toggle="modal" data-target="#myModal3"><img src="./index_files/dev.jpg" alt="blog1"></a>
-				<div class="text-w3">
-					<h4><a href="https://www.shivasoftsolutions.com/index_nl.html#" data-toggle="modal" data-target="#myModal3">Software ontwikkeling</a></h4>
-					<div>
-						<ul>
-							<li>Deskundigheid om de website van onze klant in CMS te krijgen (Magento, Word Press, Joomla, Shopify, Modx, Mambo en Drupal).
-							</li>
-							<li>ECommerce-oplossingen in cloud-platform (Windows Azure, AWS, Bluemix)</li>
-							<li>Inheemse mobiele app ontwikkeling voor iOS en Android platform</li>
-							<li>Hybride mobiele app ontwikkeling met behulp van telefoongap, ionische, React native kaders</li>
-							<li>Complex en responsief web-UI / UX-ontwerp</li>
-						</ul>
-					</div>
-
-				</div>
-				<div class="clearfix"></div>
-			</div>
-		</div>
-	</div>
-	<!--//blogs-->
-	<!-- test automation -->
-	<div id="tsta">
-		<div class="title">
-			<h1>S3 QA and Business Automation Framework</h1>
-		</div>
-		<div class="sub-title">
-			<p>
-				Met behulp van het succesvolle S3 Test Automation Framework werken we samen met u om de omvang te bepalen en een oplossing te leveren
-Gebruikmaken van het beste van het ras tools om het rendement op de investering te maximaliseren.
-Onze hoogwaardige consultants zullen niet alleen de automatiseringssoftware creëren en uitvoeren zoals u dat nodig heeft
-Op aanvraag of bij geplande frequenties.
-			</p>
-		</div>
-		<div class="content">
-			<ul>
-				<li>
-					<h3>S3 TEST AUTOMATION FRAMEWORK</h3>
-					<div>
-						<p>
-							Gebruikt effectieve testautomatisering kan de testkosten en schema's verminderen. Te vaak mislukt echter automatisering.
-Met het succesvolle S3 Test Automation Framework kunt u een oplossing leveren die de echte voordelen van de test demonstreert
-Automatisering en het bijbehorende rendement op belegging.
-						</p>
-					</div>
-				</li>
-				<li>
-					<h3>S3 BUSINESS PROCESS AUTOMATION</h3>
-					<p>
-						Als u op uw systeem werkintensieve taken uitvoert op uw systeem, waarom niet overwegen om ze te automatiseren.
-S3 heeft in de loop der jaren succesvol een aantal bedrijfsprocesautomatiseringsoplossingen ingezet voor grote bank- en financieel
-bedrijven. De kostenbesparingen zijn verrassend om niet te vergeten de voordelen van verhoogde verwerkingsvolumes en taken
-Sneller uit.
-					</p>
-				</li>
-				<li>
-					<h3>HP UNIFIED FUNCTIONAL TESTING</h3>
-					<div>
-						<p>Vroeger bekend als QuickTest Professional of QTP helpt deze marktleider functionele testautomatiseringssoftware te leveren
-Kwaliteitssoftware bij speed.S3 heeft uitgebreide ervaring met het implementeren van automatiseringszenders met behulp van Unified Functional Test (UFT) die een snelle realisatie realiseert
-Rendement op belegging voor klanten. Ons team is zeer bekwaam in de snelle implementatie van UFT om ook eenvoudig op te lossen
-Als complexe automatiseringsoplossingen.</p>
-					</div>
-				</li>
-				<li>
-					<h3>SELENIUM AND OPEN SOURCE</h3>
-					<div>
-						<p>Selen en andere open source tools worden steeds vaker in de markt om testautomatisering te ondersteunen. S3 heeft de technische ervaring en in combinatie met het S3 Test Automation Framework is een zeer krachtige oplossing voor
-Ondersteun uw automatiseringsbehoeften.</p>
-					</div>
-				</li>
-			</ul>
-		</div>
-	</div>
-	<!-- //test automation -->
-
-	<!-- acadamy-->
-	<div id="ita">
-		<div class="title">
-			<h1>S3 Global IT Academy</h1>
-		</div>
-		<div class="sub-title">
-			<h2>Hoge kwaliteit getrainde en gecertificeerde consultants
-				</h2>
-			</div>
-		<div class="floatter">
-			<p>De S3 Global IT Academy (onderdeel van de Shiva Soft Solutions Group) is een uniek Software Development and Testing services model
-Die kosteneffectieve, lokaal getrainde landelijke hulpbronnen biedt.</p>
-		</div>
-	</div>
-
-	<div class="acd2">
-		<div class="container">
-		<div>
-			<h1>HET S3 GLOBAL GRADUATE PROGRAMMA</h1>
-		</div>
-		<div>
-			<p>De Academie model brengt hoge bekwaamheid kandidaten en zet ze door middel van academie ontworpen programma's van intense, intern
-Ontwikkelde training in:</p>
-			<ul>
-			<li>Software Testing / QA</li>
-			<li>SDET (Development in Test)</li>
-			<li>Software Development (.NET C#, Java)</li>
-			<li>PMO / Business</li>
-			</ul>   
-			<p>Analyse Dit intensieve onderwijs en het opleidingsprogramma, geleid door trainers met veel ervaring en kennis,
-Stelt S3 Global in staat om onze klanten te voorzien van gemotiveerde, lichte, jonge carrieregerichte IT-consultants, die zich hebben beheerd
-De technische en analytische vaardigheden die nodig zijn om productieve testers, ontwikkelaars en DevOps consultants te zijn. Opgeleide Academie
-Consultants worden ter plaatse ter plaatse bij onze klanten geplaatst tegen concurrerende vaste tarieven, met de mogelijkheid om permanent te adviseren
-Na een afgesproken periode. Onze Academie presenteert een goedkoop, laag risico alternatief voor traditionele contractwerving,
-Offshore- en nearshore-outsourcing, maar tegelijkertijd de grote leemtes van het Verenigd Koninkrijk en Nederland (Europa), waar
-Er is veel aandacht voor Agile, automatisering, mobiel, CI, BDD en diverse financiële producten (Murex, Calypso, Fidessa, Bloomberg
-AIM - de handels- en Charles River OMS) Business Solutions.</p>
-		</div>
-		</div>
-	</div>
-
-	<div class="acd3">
-		<div class="container">
-		<div>
-			<h1>Geïnteresseerd in het aansluiten van onze academie?</h1>
-		</div>
-		<div>
-			<p>De S3 Academy is een snelle en lonende initiatie in een specialistische en lucratieve carrière in de IT-industrie. We moedigen aan
-IT studeert af om met ons te komen en met een gestructureerde training een stimulerende en lonende carrière in IT te ervaren
-Programma en vacature. </p>
-			<p>Ons onderwijs en de gestructureerde opleidingsprogramma's bieden praktisch en toepasbaar
-
-Kennis die in de industrie door de deskundige trainer in de aangename leeromgeving vereist is. Ons curriculum creëert individuen met de nodige vaardigheden en accreditaties die nodig zijn om waarde toe te voegen aan
-Elk cliëntenteam.</p>
-			<p>Succesvolle kandidaten worden op een snelle loopbaanprogressie geplaatst en hebben
-De kans om te werken en te leren van een aantal elite IT professionals in Nederland, Europa en het Verenigd Koninkrijk. </p></div>
-		<div class="tool"><a class="typeform-share button" href="https://shivasoft.typeform.com/to/uA4YxD" data-mode="popup" style="display:inline-block;text-decoration:none;background-color:#449d44;color:white;cursor:pointer;font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:40px;text-align:center;margin:0;height:40px;padding:0px 26px;border-radius:8px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:bold;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;" target="_blank">Join Now </a> <script> (function() { var qs,js,q,s,d=document, gi=d.getElementById, ce=d.createElement, gt=d.getElementsByTagName, id="typef_orm_share", b="https://embed.typeform.com/"; if(!gi.call(d,id)){ js=ce.call(d,"script"); js.id=id; js.src=b+"embed.js"; q=gt.call(d,"script")[0]; q.parentNode.insertBefore(js,q) } })() </script></div>
-		</div>
-	</div>
+                </div>
+                <!-- navbar-header -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li><a href="/index_nl.html#about"
+                                class="hvr-underline-from-center scroll">Over ons</a></li>
+                        <li><a href="/index_nl.html#blogs"
+                                class="hvr-underline-from-center scroll">IT Services</a></li>
+                        <li><a href="/index_nl.html#tsta"
+                                class="hvr-underline-from-center scroll">Test Automation</a></li>
+                        <li><a href="/index_nl.html#ita"
+                                class="hvr-underline-from-center scroll">IT Academy</a></li>
+                        <li><a href="/index_nl.html#jobs"
+                                class="hvr-underline-from-center scroll">Careers</a></li>
+                        <li><a href="/index_nl.html#contact"
+                                class="hvr-underline-from-center scroll">Contact Us</a></li>
 
 
-	<!--//acadamy-->
-	<!-- jobs -->
+                    </ul>
+                </div>
+                <div class="clearfix"> </div>
+            </nav>
+        </div>
+        <!-- //navigation -->
+    </div>
 
-	<div class="w3-about" id="jobs">
-		<div class="container">
-			<div class="col-xs-12 col-md-12">
-				<h1>Careers</h1>
-				<p>Bij Shiva Soft Solutions bieden we de kansen, uitdagingen en ondersteuning om nu de toekomst van uw werk te kunnen leven. onderzoeken
-Waar we werken, hoe we werken en de mogelijkheden die u wachten.</p>
-				<table class="table table-striped">
-					<thead>
-						<tr>
-							<th>Position Id</th>
-							<th>Position</th>
-							<th>Skills</th>
-							<th>Location</th>
-							<th>Posting Date</th>
-							<th></th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td>101-SD </td>
-							<td>Automation Tester</td>
-							<td>SOAP UI,Cucumber framework,Automation testing experience</td>
-							<td>Netherlands</td>
-							<td>08-Jun-2017</td>
-							<td><a id="apply_now" class="btn btn-sm" href="mailto:careers@shivasoftsolutions.com?subject=Postion%20id%20-%20101-SD&amp;body=Hi,Your%20details%20here">Apply now</a></td>
-						</tr>
-						<tr>
-							<td>102-SD</td>
-							<td>Java Developer</td>
-							<td>J2EE app development with 7 years exp</td>
-							<td>London UK</td>
-							<td>08-Jun-2017</td>
-							<td><a id="apply_now" class="btn btn-sm" href="mailto:careers@shivasoftsolutions.com?subject=Postion%20id%20-%20102-SD&amp;body=Hi,Your%20details%20here">Apply now</a></td>
+    <!--main-content-->
+    <!--about-->
+    <div class="w3-about" id="about">
+        <div class="container">
+            <div class="about-head">
+                <h3>about us</h3>
+                <p>Shiva Soft Solutions is een Europe Based Technology en een adviesbureau dat gevestigd is in het
+                    Verenigd Koninkrijk en Nederland.</p>
+            </div>
+            <div class="about-info">
+                <div class="row">
+                    <img src="./index_files/it_consult.jpg" style="padding-top:100px" class="col-xs-12 col-md-6"
+                        alt="about-image">
+                    <div class="col-xs-12 col-md-6">
+                        <h3>S3 OVERLEG PLEGEN</h3>
+                        <p>Bij Shiva Soft Solutions heet ook S3, we geloven dat, als het mogelijk is, het zal worden
+                            gedaan. Als het niet mogelijk is, S3
+                            Zal er naar manieren zoeken om het toch te doen. Onmoontlike vragen omzetten in mogelijke
+                            oplossingen, dat is wat ons anders maakt.
+                            Onze mensen ademen, droom en leven omgaan met kamers. We hebben uitgebreide ervaring in
+                            implementaties en applicaties van IT-systemen
+                            Ondersteuning voor verschillende toepassingen op de financiële markten. S3 heeft een bewezen
+                            track record: we hebben gewerkt voor financiële instellingen
+                            In Amsterdam, Londen en New York. Wij zullen u helpen uw kosten-efficiëntie te verbeteren,
+                            uw applicatie-architectuur te vereenvoudigen,
+                            Optimaliseer de tijd op de markt, verhoog rechtdoor door de verwerking en voldoet aan de
+                            financiële voorschriften. In het kort:
+                            Je doet de deal, we doen het project!
+                        </p>
+                    </div>
+                </div>
 
-						</tr>
-						<tr>
-							<td>103-SD</td>
-							<td>BPM Senior Developer</td>
-							<td>Senior IBM BPM Developer vermindert 5-6 jaar ervaring. Heel goed begrip van BPM concepten</td>
-							<td>Netherlands</td>
-							<td>07-Jul-2017</td>
-							<td><a id="apply_now" class="btn btn-sm" href="mailto:careers@shivasoftsolutions.com?subject=Postion%20id%20-%20103-SD&amp;body=Hi,Your%20details%20here">Apply now</a></td>
-
-						</tr>
-					</tbody>
-				</table>
-
-			</div>
-		</div>
-	</div>
-	<!-- //jobs -->
-
-	<!--contact-->
-	<div class="w3lcontact">
-		<div class="container">
-			<div class="contact-head">
-				<h4>Contact Us</h4>
-			</div>
-			<div class="contact-mainw3l">
-				<div class="mapw3l">
-					<address>
-						<strong>Shiva Soft Solutions Limited</strong><br><strong>25 Chamberline Drive</strong><br> Wilmslow,Chesire - SK9 2SN<br> United
-						Kingdom<br>
-						<abbr>Phone:</abbr>0044-7528458786<br>
-						<strong>Email : infouk@shivasoftsolutions.com</strong>
-					</address>
-				</div>
-				<div class="mapw3l">
-					<address>
-						<strong>Shiva Soft Solutions B.V</strong><br><strong>Poortwachter 116</strong><br> 1188 CP, Amstelveen, Nederland<br>
-						<abbr>Phone:</abbr>0031-207763143<br>
-						<strong>Email : infonl@shivasoftsolutions.com</strong>
-					</address>
-				</div>
-				<div class="clearfix"></div>
-			</div>
-		</div>
-	</div>
-	<!--//contact-->
-	<!--//main-content-->
-
-	<!--footer-->
-	<div class="w3lfooter" id="contact">
-		<div class="container">
-			<div class="clearfix"></div>
-			<div class="copyright-agile">
-				<p>© 2017 Shivasoft. All rights reserved</p>
-			</div>
-			<div class="clearfix"></div>
-		</div>
-	</div>
-	<!--//footer-->
+                <div class="row">
+                    <div class="col-xs-12 col-md-6">
+                        <h3>S3 TECHNOLOGIES</h3>
+                        <p>De financiële wereld kan vrij complex zijn, vooral als IT-software in de foto komt. S3 is
+                            gespecialiseerd in het begrijpen,
+                            Verduidelijken, ontwerpen en implementeren van de meest ingewikkelde financiële IT-projecten
+                            (in onderdelen of als een volledig op maat ontworpen
+                            pakket). We kunnen een proces uit elkaar nemen, het beter laten werken of een nieuwe maken
+                            vanaf het begin, altijd in de gaten houden
+                            Op de grotere foto. S3 maakt gebruik van al zijn inzicht, ervaring, talent en netwerk om uw
+                            systeem te laten draaien zonder
+                            Een hitch. Ons doel is om onze klanten succesvol te maken in hun systeem implementaties en /
+                            of applicatie support.We hebben ruime ervaring op dit gebied.</p>
+                    </div>
+                    <img src="./index_files/technologies.png" style="padding-top:100px" class="col-xs-12 col-md-6"
+                        alt="about-image">
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+    <!--//about-->
 
 
-	<!-- for-banner-slider -->
-	<script src="./index_files/responsiveslides.min.js"></script>
-	<script>
-		$(function () {
+
+    <!--blogs-->
+    <div class="agile-blogs" id="blogs">
+        <div class="container">
+            <div class="g1 agile-blog1">
+                <h2>IT Services</h2>
+                <a href="/index_nl.html#" data-toggle="modal"
+                    data-target="#myModal1"><img src="./index_files/finance.jpg" alt="blog1"></a>
+                <div class="text-w3">
+                    <h4><a href="/index_nl.html#" data-toggle="modal"
+                            data-target="#myModal1">
+                            Banken en Financiële diensten - Consulting</a></h4>
+
+                    <div>
+                        <ul>
+                            <li>Asset and wealth Management diensten</li>
+                            <li>Investment Banking en Makelaarsdiensten</li>
+                            <li>Securities Services</li>
+                            <li>Capital Markets Consulting</li>
+                            <li>Derivatives Market Consulting</li>
+                            <li>Cross Currency, Money Markets FX-MM, collateralised borrowing</li>
+                            <li>Exchange Traded Futures and Options Markets</li>
+                            <li>Collateral process, Initial Margin, Variation Margin and Margin movements </li>
+                            <li>Security Lending</li>
+                        </ul>
+                    </div>
+
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="g2 agile-blog2">
+                <a href="/index_nl.html#" data-toggle="modal"
+                    data-target="#myModal2"><img style="padding-top: 50px;" src="./index_files/testing.jpg"
+                        alt="blog1"></a>
+                <div class="text-w3l">
+                    <h4><a href="/index_nl.html#" data-toggle="modal"
+                            data-target="#myModal2">QA Service</a></h4>
+                    <div>
+                        <ul>
+                            <li>
+                                <h3>Automatiseringstesten</h3>
+                                <div>Automatische ingenieurs op S3 hebben expertise in diverse tools, waaronder, Selen
+                                    (C / C ++, C #, .NET, Java, Visual Basic,
+                                    Python en PHP.), BDD / TDD-driven, QTP-gebaseerde
+                                    automatiseringsraamwerkontwikkeling</div>
+                            </li>
+                            <li>
+                                <h3>Mobiele applicatie testen</h3>
+                                <div>Our Automation engineers can provide scalable frameworks for your mobile apps; the
+                                    framework grows as your app does!</div>
+                            </li>
+                            <li>
+                                <h3>Webtoepassingstesten</h3>
+                                <div>Onze automatiseringstechnici zullen volledige testen uitvoeren met gedetailleerde
+                                    QA-rapportage</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="g3 agile-blog1">
+                <a href="/index_nl.html#" data-toggle="modal"
+                    data-target="#myModal3"><img src="./index_files/dev.jpg" alt="blog1"></a>
+                <div class="text-w3">
+                    <h4><a href="/index_nl.html#" data-toggle="modal"
+                            data-target="#myModal3">Software ontwikkeling</a></h4>
+                    <div>
+                        <ul>
+                            <li>Deskundigheid om de website van onze klant in CMS te krijgen (Magento, Word Press,
+                                Joomla, Shopify, Modx, Mambo en Drupal).
+                            </li>
+                            <li>ECommerce-oplossingen in cloud-platform (Windows Azure, AWS, Bluemix)</li>
+                            <li>Inheemse mobiele app ontwikkeling voor iOS en Android platform</li>
+                            <li>Hybride mobiele app ontwikkeling met behulp van telefoongap, ionische, React native
+                                kaders</li>
+                            <li>Complex en responsief web-UI / UX-ontwerp</li>
+                        </ul>
+                    </div>
+
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+    <!--//blogs-->
+    <!-- test automation -->
+    <div id="tsta">
+        <div class="title">
+            <h1>S3 QA and Business Automation Framework</h1>
+        </div>
+        <div class="sub-title">
+            <p>
+                Met behulp van het succesvolle S3 Test Automation Framework werken we samen met u om de omvang te
+                bepalen en een oplossing te leveren
+                Gebruikmaken van het beste van het ras tools om het rendement op de investering te maximaliseren.
+                Onze hoogwaardige consultants zullen niet alleen de automatiseringssoftware creëren en uitvoeren zoals u
+                dat nodig heeft
+                Op aanvraag of bij geplande frequenties.
+            </p>
+        </div>
+        <div class="content">
+            <ul>
+                <li>
+                    <h3>S3 TEST AUTOMATION FRAMEWORK</h3>
+                    <div>
+                        <p>
+                            Gebruikt effectieve testautomatisering kan de testkosten en schema's verminderen. Te vaak
+                            mislukt echter automatisering.
+                            Met het succesvolle S3 Test Automation Framework kunt u een oplossing leveren die de echte
+                            voordelen van de test demonstreert
+                            Automatisering en het bijbehorende rendement op belegging.
+                        </p>
+                    </div>
+                </li>
+                <li>
+                    <h3>S3 BUSINESS PROCESS AUTOMATION</h3>
+                    <p>
+                        Als u op uw systeem werkintensieve taken uitvoert op uw systeem, waarom niet overwegen om ze te
+                        automatiseren.
+                        S3 heeft in de loop der jaren succesvol een aantal bedrijfsprocesautomatiseringsoplossingen
+                        ingezet voor grote bank- en financieel
+                        bedrijven. De kostenbesparingen zijn verrassend om niet te vergeten de voordelen van verhoogde
+                        verwerkingsvolumes en taken
+                        Sneller uit.
+                    </p>
+                </li>
+                <li>
+                    <h3>HP UNIFIED FUNCTIONAL TESTING</h3>
+                    <div>
+                        <p>Vroeger bekend als QuickTest Professional of QTP helpt deze marktleider functionele
+                            testautomatiseringssoftware te leveren
+                            Kwaliteitssoftware bij speed.S3 heeft uitgebreide ervaring met het implementeren van
+                            automatiseringszenders met behulp van Unified Functional Test (UFT) die een snelle
+                            realisatie realiseert
+                            Rendement op belegging voor klanten. Ons team is zeer bekwaam in de snelle implementatie van
+                            UFT om ook eenvoudig op te lossen
+                            Als complexe automatiseringsoplossingen.</p>
+                    </div>
+                </li>
+                <li>
+                    <h3>SELENIUM AND OPEN SOURCE</h3>
+                    <div>
+                        <p>Selen en andere open source tools worden steeds vaker in de markt om testautomatisering te
+                            ondersteunen. S3 heeft de technische ervaring en in combinatie met het S3 Test Automation
+                            Framework is een zeer krachtige oplossing voor
+                            Ondersteun uw automatiseringsbehoeften.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- //test automation -->
+
+    <!-- acadamy-->
+    <div id="ita">
+        <div class="title">
+            <h1>S3 Global IT Academy</h1>
+        </div>
+        <div class="sub-title">
+            <h2>Hoge kwaliteit getrainde en gecertificeerde consultants
+            </h2>
+        </div>
+        <div class="floatter">
+            <p>De S3 Global IT Academy (onderdeel van de Shiva Soft Solutions Group) is een uniek Software Development
+                and Testing services model
+                Die kosteneffectieve, lokaal getrainde landelijke hulpbronnen biedt.</p>
+        </div>
+    </div>
+
+    <div class="acd2">
+        <div class="container">
+            <div>
+                <h1>HET S3 GLOBAL GRADUATE PROGRAMMA</h1>
+            </div>
+            <div>
+                <p>De Academie model brengt hoge bekwaamheid kandidaten en zet ze door middel van academie ontworpen
+                    programma's van intense, intern
+                    Ontwikkelde training in:</p>
+                <ul>
+                    <li>Software Testing / QA</li>
+                    <li>SDET (Development in Test)</li>
+                    <li>Software Development (.NET C#, Java)</li>
+                    <li>PMO / Business</li>
+                </ul>
+                <p>Analyse Dit intensieve onderwijs en het opleidingsprogramma, geleid door trainers met veel ervaring
+                    en kennis,
+                    Stelt S3 Global in staat om onze klanten te voorzien van gemotiveerde, lichte, jonge
+                    carrieregerichte IT-consultants, die zich hebben beheerd
+                    De technische en analytische vaardigheden die nodig zijn om productieve testers, ontwikkelaars en
+                    DevOps consultants te zijn. Opgeleide Academie
+                    Consultants worden ter plaatse ter plaatse bij onze klanten geplaatst tegen concurrerende vaste
+                    tarieven, met de mogelijkheid om permanent te adviseren
+                    Na een afgesproken periode. Onze Academie presenteert een goedkoop, laag risico alternatief voor
+                    traditionele contractwerving,
+                    Offshore- en nearshore-outsourcing, maar tegelijkertijd de grote leemtes van het Verenigd Koninkrijk
+                    en Nederland (Europa), waar
+                    Er is veel aandacht voor Agile, automatisering, mobiel, CI, BDD en diverse financiële producten
+                    (Murex, Calypso, Fidessa, Bloomberg
+                    AIM - de handels- en Charles River OMS) Business Solutions.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="acd3">
+        <div class="container">
+            <div>
+                <h1>Geïnteresseerd in het aansluiten van onze academie?</h1>
+            </div>
+            <div>
+                <p>De S3 Academy is een snelle en lonende initiatie in een specialistische en lucratieve carrière in de
+                    IT-industrie. We moedigen aan
+                    IT studeert af om met ons te komen en met een gestructureerde training een stimulerende en lonende
+                    carrière in IT te ervaren
+                    Programma en vacature. </p>
+                <p>Ons onderwijs en de gestructureerde opleidingsprogramma's bieden praktisch en toepasbaar
+
+                    Kennis die in de industrie door de deskundige trainer in de aangename leeromgeving vereist is. Ons
+                    curriculum creëert individuen met de nodige vaardigheden en accreditaties die nodig zijn om waarde
+                    toe te voegen aan
+                    Elk cliëntenteam.</p>
+                <p>Succesvolle kandidaten worden op een snelle loopbaanprogressie geplaatst en hebben
+                    De kans om te werken en te leren van een aantal elite IT professionals in Nederland, Europa en het
+                    Verenigd Koninkrijk. </p>
+            </div>
+            <div class="tool"><a class="typeform-share button" href="https://shivasoft.typeform.com/to/uA4YxD"
+                    data-mode="popup"
+                    style="display:inline-block;text-decoration:none;background-color:#449d44;color:white;cursor:pointer;font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:40px;text-align:center;margin:0;height:40px;padding:0px 26px;border-radius:8px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:bold;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;"
+                    target="_blank">Join Now </a>
+                <script> (function () { var qs, js, q, s, d = document, gi = d.getElementById, ce = d.createElement, gt = d.getElementsByTagName, id = "typef_orm_share", b = "https://embed.typeform.com/"; if (!gi.call(d, id)) { js = ce.call(d, "script"); js.id = id; js.src = b + "embed.js"; q = gt.call(d, "script")[0]; q.parentNode.insertBefore(js, q) } })() </script>
+            </div>
+        </div>
+    </div>
 
 
-			$("#slider").responsiveSlides({
-				auto: true,
-				pager: false,
-				nav: true,
-				speed: 1000,
-				namespace: "callbacks",
-				before: function () {
-					$('.events').append("<li>before event fired.</li>");
-				},
-				after: function () {
-					$('.events').append("<li>after event fired.</li>");
-				}
-			});
-		});
-	</script>
-	<!-- //for-banner-slider -->
+    <!--//acadamy-->
+    <!-- jobs -->
 
-	<!-- for-service-side-slider -->
-	<script src="./index_files/responsiveslides.min.js"></script>
-	<script>
-		// You can also use "$(window).load(function() {"
-		$(function () {
-			// Slideshow 4
-			$("#slider4").responsiveSlides({
-				auto: true,
-				pager: false,
-				nav: true,
-				speed: 500,
-				namespace: "callbacks",
-				before: function () {
-					$('.events').append("<li>before event fired.</li>");
-				},
-				after: function () {
-					$('.events').append("<li>after event fired.</li>");
-				}
-			});
+    <div class="w3-about" id="jobs">
+        <div class="container">
+            <div class="col-xs-12 col-md-12">
+                <h1>Careers</h1>
+                <p>Bij Shiva Soft Solutions bieden we de kansen, uitdagingen en ondersteuning om nu de toekomst van uw
+                    werk te kunnen leven. onderzoeken
+                    Waar we werken, hoe we werken en de mogelijkheden die u wachten.</p>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Position Id</th>
+                            <th>Position</th>
+                            <th>Skills</th>
+                            <th>Location</th>
+                            <th>Posting Date</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>101-SD </td>
+                            <td>Automation Tester</td>
+                            <td>SOAP UI,Cucumber framework,Automation testing experience</td>
+                            <td>Netherlands</td>
+                            <td>08-Jun-2017</td>
+                            <td><a id="apply_now" class="btn btn-sm"
+                                    href="mailto:careers@shivasoftsolutions.com?subject=Postion%20id%20-%20101-SD&amp;body=Hi,Your%20details%20here">Apply
+                                    now</a></td>
+                        </tr>
+                        <tr>
+                            <td>102-SD</td>
+                            <td>Java Developer</td>
+                            <td>J2EE app development with 7 years exp</td>
+                            <td>London UK</td>
+                            <td>08-Jun-2017</td>
+                            <td><a id="apply_now" class="btn btn-sm"
+                                    href="mailto:careers@shivasoftsolutions.com?subject=Postion%20id%20-%20102-SD&amp;body=Hi,Your%20details%20here">Apply
+                                    now</a></td>
 
-		});
-	</script>
-	<!-- //for-service-side-slider -->
+                        </tr>
+                        <tr>
+                            <td>103-SD</td>
+                            <td>BPM Senior Developer</td>
+                            <td>Senior IBM BPM Developer vermindert 5-6 jaar ervaring. Heel goed begrip van BPM
+                                concepten</td>
+                            <td>Netherlands</td>
+                            <td>07-Jul-2017</td>
+                            <td><a id="apply_now" class="btn btn-sm"
+                                    href="mailto:careers@shivasoftsolutions.com?subject=Postion%20id%20-%20103-SD&amp;body=Hi,Your%20details%20here">Apply
+                                    now</a></td>
 
-	<!-- For-Projects-js -->
-	<!-- Include jQuery & Filterizr -->
+                        </tr>
+                    </tbody>
+                </table>
 
-	<script src="./index_files/jquery.filterizr.js"></script>
-	<script src="./index_files/controls.js"></script>
+            </div>
+        </div>
+    </div>
+    <!-- //jobs -->
 
-	<!-- Kick off Filterizr -->
-	<script type="text/javascript">
-		$(function () {
-			//Initialize filterizr with default options
-			$('.filtr-container').filterizr();
-		});
-	</script>
-	<!---->
-	<script src="./index_files/jquery.chocolat.js"></script>
-	<!--light-box-files -->
-	<script>
-		$(function () {
-			$('.filtr-item a').Chocolat();
-		});
-	</script>
+    <!--contact-->
+    <div class="w3lcontact">
+        <div class="container">
+            <div class="contact-head">
+                <h4>Contact Us</h4>
+            </div>
+            <div class="contact-mainw3l">
+                <div class="mapw3l">
+                    <address>
+                        <strong>Shiva Soft Solutions Limited</strong><br><strong>25 Chamberline Drive</strong><br>
+                        Wilmslow,Chesire - SK9 2SN<br> United
+                        Kingdom<br>
+                        <abbr>Phone:</abbr>0044-7528458786<br>
+                        <strong>Email : infouk@shivasoftsolutions.com</strong>
+                    </address>
+                </div>
+                <div class="mapw3l">
+                    <address>
+                        <strong>Shiva Soft Solutions B.V</strong><br><strong>Poortwachter 116</strong><br> 1188 CP,
+                        Amstelveen, Nederland<br>
+                        <abbr>Phone:</abbr>0031-207763143<br>
+                        <strong>Email : infonl@shivasoftsolutions.com</strong>
+                    </address>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+    <!--//contact-->
+    <!--//main-content-->
 
-	<!-- //For-Projects-js -->
+    <!--footer-->
+    <div class="w3lfooter" id="contact">
+        <div class="container">
+            <div class="clearfix"></div>
+            <div class="copyright-agile">
+                <p>© 2017 Shivasoft. All rights reserved</p>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+    <!--//footer-->
 
-	<!-- start-smoth-scrolling -->
-	<script type="text/javascript" src="./index_files/move-top.js"></script>
-	<script type="text/javascript" src="./index_files/easing.js"></script>
-	<script type="text/javascript">
-		jQuery(document).ready(function ($) {
-			$(".scroll").click(function (event) {
-				event.preventDefault();
-				$('html,body').animate({ scrollTop: $(this.hash).offset().top }, 1000);
-			});
-		});
-	</script>
-	<!-- start-smoth-scrolling -->
 
-	<!-- Starts-Number-Scroller-Animation-JavaScript -->
-	<script src="./index_files/waypoints.min.js"></script>
-	<script src="./index_files/counterup.min.js"></script>
-	<script>
-		jQuery(document).ready(function ($) {
-			$('.counter').counterUp({
-				delay: 20,
-				time: 3000
-			});
-		});
-	</script>
-	<!-- //Starts-Number-Scroller-Animation-JavaScript -->
+    <!-- for-banner-slider -->
+    <script src="./index_files/responsiveslides.min.js"></script>
+    <script>
+        $(function () {
 
-	<!-- smooth scrolling -->
-	<script type="text/javascript">
-		$(document).ready(function () {
+
+            $("#slider").responsiveSlides({
+                auto: true,
+                pager: false,
+                nav: true,
+                speed: 1000,
+                namespace: "callbacks",
+                before: function () {
+                    $('.events').append("<li>before event fired.</li>");
+                },
+                after: function () {
+                    $('.events').append("<li>after event fired.</li>");
+                }
+            });
+        });
+    </script>
+    <!-- //for-banner-slider -->
+
+    <!-- for-service-side-slider -->
+    <script src="./index_files/responsiveslides.min.js"></script>
+    <script>
+        // You can also use "$(window).load(function() {"
+        $(function () {
+            // Slideshow 4
+            $("#slider4").responsiveSlides({
+                auto: true,
+                pager: false,
+                nav: true,
+                speed: 500,
+                namespace: "callbacks",
+                before: function () {
+                    $('.events').append("<li>before event fired.</li>");
+                },
+                after: function () {
+                    $('.events').append("<li>after event fired.</li>");
+                }
+            });
+
+        });
+    </script>
+    <!-- //for-service-side-slider -->
+
+    <!-- For-Projects-js -->
+    <!-- Include jQuery & Filterizr -->
+
+    <script src="./index_files/jquery.filterizr.js"></script>
+    <script src="./index_files/controls.js"></script>
+
+    <!-- Kick off Filterizr -->
+    <script type="text/javascript">
+        $(function () {
+            //Initialize filterizr with default options
+            $('.filtr-container').filterizr();
+        });
+    </script>
+    <!---->
+    <script src="./index_files/jquery.chocolat.js"></script>
+    <!--light-box-files -->
+    <script>
+        $(function () {
+            $('.filtr-item a').Chocolat();
+        });
+    </script>
+
+    <!-- //For-Projects-js -->
+
+    <!-- start-smoth-scrolling -->
+    <script type="text/javascript" src="./index_files/move-top.js"></script>
+    <script type="text/javascript" src="./index_files/easing.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+            $(".scroll").click(function (event) {
+                event.preventDefault();
+                $('html,body').animate({ scrollTop: $(this.hash).offset().top }, 1000);
+            });
+        });
+    </script>
+    <!-- start-smoth-scrolling -->
+
+    <!-- Starts-Number-Scroller-Animation-JavaScript -->
+    <script src="./index_files/waypoints.min.js"></script>
+    <script src="./index_files/counterup.min.js"></script>
+    <script>
+        jQuery(document).ready(function ($) {
+            $('.counter').counterUp({
+                delay: 20,
+                time: 3000
+            });
+        });
+    </script>
+    <!-- //Starts-Number-Scroller-Animation-JavaScript -->
+
+    <!-- smooth scrolling -->
+    <script type="text/javascript">
+        $(document).ready(function () {
 			/*
 				var defaults = {
 				containerID: 'toTop', // fading element id
@@ -606,12 +719,16 @@ Waar we werken, hoe we werken en de mogelijkheden die u wachten.</p>
 				easingType: 'linear' 
 				};
 			*/
-			$().UItoTop({ easingType: 'easeOutQuart' });
-		});
-	</script>
-	<a href="https://www.shivasoftsolutions.com/index_nl.html#" id="toTop" style="display: block;"> <span id="toTopHover" style="opacity: 1;"> </span></a>
-	<!-- //smooth scrolling -->
+            $().UItoTop({ easingType: 'easeOutQuart' });
+        });
+    </script>
+    <a href="/index_nl.html#" id="toTop" style="display: block;"> <span
+            id="toTopHover" style="opacity: 1;"> </span></a>
+    <!-- //smooth scrolling -->
 
 
 
-<div></div></body></html>
+    <div></div>
+</body>
+
+</html>
